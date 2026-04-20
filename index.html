@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a5276">
+<title>SCA3 居家康复 | Home Rehab</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --primary: #1a5276;
+  --primary-light: #2980b9;
+  --accent: #27ae60;
+  --accent-dark: #1e8449;
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-light: #555;
+  --danger: #c0392b;
+  --orange: #e67e22;
+  --border: #dde4ea;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --purple: #8e44ad;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 90px;
+}
+
+.header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  padding: 20px 20px 24px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.header-date { font-size: 15px; opacity: 0.85; }
+
+.lang-btn {
+  position: absolute;
+  top: 18px;
+  right: 16px;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lang-btn:active { background: rgba(255,255,255,0.35); }
+
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+
+/* Exercise Card */
+.exercise-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--primary-light);
+  transition: all 0.2s;
+}
+
+.exercise-card.done { border-left-color: var(--accent); opacity: 0.75; }
+
+.exercise-category {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary-light);
+  margin-bottom: 6px;
+}
+
+.exercise-card.done .exercise-category { color: var(--accent); }
+.exercise-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.exercise-desc { font-size: 15px; color: var(--text-light); margin-bottom: 8px; }
+.exercise-spec { font-size: 14px; color: var(--primary); font-weight: 600; margin-bottom: 14px; }
+
+.exercise-safety {
+  font-size: 13px;
+  color: var(--orange);
+  background: #fef9e7;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.exercise-safety::before { content: "⚠ "; }
+
+.check-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.check-btn.todo { background: var(--accent); color: white; }
+.check-btn.todo:active { background: var(--accent-dark); transform: scale(0.98); }
+.check-btn.completed { background: #e8f5e9; color: var(--accent); }
+
+/* Progress bar */
+.progress-section {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progress-title { font-size: 16px; font-weight: 700; }
+.progress-count { font-size: 15px; color: var(--primary); font-weight: 600; }
+
+.progress-bar-bg {
+  height: 12px;
+  background: #e8edf2;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #2ecc71);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+.day-complete-msg {
+  text-align: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  display: none;
+}
+
+.day-complete-msg.show { display: block; }
+.day-complete-msg .big-check { font-size: 48px; margin-bottom: 8px; }
+.day-complete-msg .msg-text { font-size: 18px; font-weight: 700; color: var(--accent-dark); }
+
+/* Difficulty selector */
+.difficulty-section {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.difficulty-label { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-light); }
+.difficulty-btns { display: flex; gap: 8px; }
+
+.diff-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.diff-btn.active { border-color: var(--primary); background: #eaf2f8; color: var(--primary); }
+
+/* Calendar */
+.calendar-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cal-nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-nav-btn:active { background: var(--border); }
+.cal-month { font-size: 18px; font-weight: 700; }
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.cal-weekday { font-size: 13px; font-weight: 600; color: var(--text-light); padding: 4px; }
+
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.cal-day.today { border: 2px solid var(--primary); color: var(--primary); }
+.cal-day.done { background: var(--accent); color: white; }
+.cal-day.partial { background: #fdebd0; color: var(--orange); }
+.cal-day.empty { visibility: hidden; }
+
+/* Streak */
+.streak-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.streak-item .streak-num { font-size: 32px; font-weight: 800; color: var(--primary); }
+.streak-item .streak-label { font-size: 13px; color: var(--text-light); font-weight: 600; }
+
+/* SARA Assessment */
+.sara-intro {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.sara-intro-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.sara-intro-desc { font-size: 14px; color: var(--text-light); margin-bottom: 14px; }
+
+.sara-start-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--purple);
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sara-start-btn:active { background: #7d3c98; transform: scale(0.98); }
+
+.sara-last-info {
+  font-size: 13px;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* SARA Form */
+.sara-form { display: none; }
+.sara-form.active { display: block; }
+
+.sara-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--purple);
+}
+
+.sara-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sara-item-name { font-size: 18px; font-weight: 700; }
+
+.sara-item-score {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--purple);
+  min-width: 40px;
+  text-align: right;
+}
+
+.sara-item-desc { font-size: 14px; color: var(--text-light); margin-bottom: 12px; }
+
+.sara-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sara-slider-row span { font-size: 13px; font-weight: 600; color: var(--text-light); min-width: 12px; }
+
+.sara-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background: #e8edf2;
+  outline: none;
+}
+
+.sara-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--purple);
+  cursor: pointer;
+}
+
+.sara-total-card {
+  background: linear-gradient(135deg, #f4ecf7, #e8daef);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.sara-total-label { font-size: 14px; color: var(--text-light); font-weight: 600; }
+.sara-total-num { font-size: 40px; font-weight: 800; color: var(--purple); }
+.sara-total-max { font-size: 14px; color: var(--text-light); }
+
+.sara-submit-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--purple);
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.sara-submit-btn:active { background: #7d3c98; }
+
+.sara-cancel-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: white;
+  color: var(--text-light);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+/* SARA Chart */
+.chart-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.chart-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+
+.chart-canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+
+.sara-history-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+
+.sara-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sara-history-item:last-child { border-bottom: none; }
+.sara-history-date { font-size: 15px; color: var(--text-light); }
+.sara-history-score { font-size: 18px; font-weight: 700; color: var(--purple); }
+
+.no-data-msg {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-light);
+  font-size: 15px;
+}
+
+/* Settings / Export */
+.settings-section {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.settings-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 16px; }
+.setting-value { font-size: 15px; color: var(--primary); font-weight: 600; }
+
+.export-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.15s;
+}
+
+.export-btn:active { transform: scale(0.98); }
+
+.export-btn.csv { background: var(--primary); color: white; }
+.export-btn.pdf { background: var(--purple); color: white; }
+
+.reset-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid var(--danger);
+  background: white;
+  color: var(--danger);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.reset-btn:active { background: #fdecea; }
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.nav-btn {
+  flex: 1;
+  max-width: 125px;
+  padding: 10px 8px 8px;
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color 0.2s;
+}
+
+.nav-btn.active { color: var(--primary); }
+.nav-icon { font-size: 24px; display: block; margin-bottom: 2px; }
+.nav-label { font-size: 11px; font-weight: 600; }
+
+@keyframes checkPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.exercise-card.just-done { animation: checkPop 0.3s ease; }
+
+@media (max-width: 380px) {
+  body { font-size: 16px; }
+  .exercise-name { font-size: 18px; }
+  .check-btn { font-size: 16px; padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="header">
+    <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    <h1 id="headerTitle">SCA3 居家康复</h1>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+
+  <!-- Train Page -->
+  <div class="page active" id="pageTrain">
+    <div class="difficulty-section">
+      <div class="difficulty-label" data-i18n="difficulty">训练难度</div>
+      <div class="difficulty-btns">
+        <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">
+          <span data-i18n="easy">简单</span>
+        </button>
+        <button class="diff-btn" data-level="medium" onclick="setDifficulty('medium')">
+          <span data-i18n="medium">中等</span>
+        </button>
+        <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">
+          <span data-i18n="hard">进阶</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-title" data-i18n="todayProgress">今日进度</span>
+        <span class="progress-count" id="progressCount">0/0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="day-complete-msg" id="dayCompleteMsg">
+      <div class="big-check">&#10003;</div>
+      <div class="msg-text" data-i18n="allDone">今天的训练全部完成！</div>
+    </div>
+
+    <div id="exerciseList"></div>
+  </div>
+
+  <!-- SARA Page -->
+  <div class="page" id="pageSara">
+    <!-- Intro / Start -->
+    <div id="saraIntroSection">
+      <div class="sara-intro">
+        <div class="sara-intro-title" data-i18n="saraTitle">SARA 共济失调评估</div>
+        <div class="sara-intro-desc" data-i18n="saraDesc">SARA（Scale for the Assessment and Rating of Ataxia）是国际通用的共济失调严重程度评估量表，包含 8 个维度，总分 0-40 分。分数越低越好。建议每周评估一次，追踪变化趋势。</div>
+        <button class="sara-start-btn" onclick="startSara()">
+          <span data-i18n="saraStart">开始评估</span>
+        </button>
+        <div class="sara-last-info" id="saraLastInfo"></div>
+      </div>
+
+      <!-- Trend Chart -->
+      <div class="chart-card" id="saraChartCard" style="display:none">
+        <div class="chart-title" data-i18n="saraTrend">评分趋势</div>
+        <canvas class="chart-canvas" id="saraChart"></canvas>
+      </div>
+
+      <!-- History -->
+      <div class="chart-card" id="saraHistoryCard" style="display:none">
+        <div class="sara-history-title" data-i18n="saraHistory">历史记录</div>
+        <div id="saraHistoryList"></div>
+      </div>
+
+      <div class="no-data-msg" id="saraNoData" data-i18n="saraNoData">还没有评估记录，点击上方按钮开始第一次评估</div>
+    </div>
+
+    <!-- Assessment Form -->
+    <div class="sara-form" id="saraForm">
+      <div class="sara-total-card">
+        <div class="sara-total-label" data-i18n="saraTotal">总分</div>
+        <div class="sara-total-num" id="saraTotalScore">0</div>
+        <div class="sara-total-max" data-i18n="saraTotalMax">满分 40（越低越好）</div>
+      </div>
+      <div id="saraItemList"></div>
+      <button class="sara-submit-btn" onclick="submitSara()">
+        <span data-i18n="saraSave">保存评估结果</span>
+      </button>
+      <button class="sara-cancel-btn" onclick="cancelSara()">
+        <span data-i18n="saraCancel">取消</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar Page -->
+  <div class="page" id="pageCalendar">
+    <div class="streak-card">
+      <div class="streak-item">
+        <div class="streak-num" id="currentStreak">0</div>
+        <div class="streak-label" data-i18n="streak">连续天数</div>
+      </div>
+      <div class="streak-item">
+        <div class="streak-num" id="totalDays">0</div>
+        <div class="streak-label" data-i18n="totalDays">累计训练</div>
+      </div>
+      <div class="streak-item">
+        <div class="streak-num" id="totalExercises">0</div>
+        <div class="streak-label" data-i18n="totalExercises">完成动作</div>
+      </div>
+    </div>
+    <div class="calendar-card">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="calNav(-1)">&#9664;</button>
+        <span class="cal-month" id="calMonth"></span>
+        <button class="cal-nav-btn" onclick="calNav(1)">&#9654;</button>
+      </div>
+      <div class="cal-weekdays" id="calWeekdays"></div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+  </div>
+
+  <!-- Settings Page -->
+  <div class="page" id="pageSettings">
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="settingsGeneral">通用设置</div>
+      <div class="setting-row">
+        <span class="setting-label" data-i18n="language">语言</span>
+        <span class="setting-value" id="settingsLang" onclick="toggleLang()" style="cursor:pointer">中文</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label" data-i18n="difficultyLabel">训练难度</span>
+        <span class="setting-value" id="settingsDiff">简单</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="exportTitle">导出数据给医生</div>
+      <button class="export-btn csv" onclick="exportCSV()">
+        <span data-i18n="exportCSV">导出 CSV（训练记录 + SARA 评分）</span>
+      </button>
+      <button class="export-btn pdf" onclick="exportPDF()">
+        <span data-i18n="exportPDF">导出 PDF 报告</span>
+      </button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="dataManagement">数据管理</div>
+      <div class="setting-row">
+        <span class="setting-label" data-i18n="trainingDays">已训练天数</span>
+        <span class="setting-value" id="settingsTotalDays">0</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label" data-i18n="saraAssessments">SARA 评估次数</span>
+        <span class="setting-value" id="settingsSaraCount">0</span>
+      </div>
+      <button class="reset-btn" onclick="confirmReset()">
+        <span data-i18n="resetData">清除所有数据</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-page="pageTrain" onclick="showPage('pageTrain', this)">
+      <span class="nav-icon">&#128170;</span>
+      <span class="nav-label" data-i18n="navTrain">训练</span>
+    </button>
+    <button class="nav-btn" data-page="pageSara" onclick="showPage('pageSara', this)">
+      <span class="nav-icon">&#128202;</span>
+      <span class="nav-label" data-i18n="navSara">评估</span>
+    </button>
+    <button class="nav-btn" data-page="pageCalendar" onclick="showPage('pageCalendar', this)">
+      <span class="nav-icon">&#128197;</span>
+      <span class="nav-label" data-i18n="navCalendar">日历</span>
+    </button>
+    <button class="nav-btn" data-page="pageSettings" onclick="showPage('pageSettings', this)">
+      <span class="nav-icon">&#9881;</span>
+      <span class="nav-label" data-i18n="navSettings">设置</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ==================== i18n ====================
+const I18N = {
+  zh: {
+    appTitle: 'SCA3 居家康复',
+    difficulty: '训练难度',
+    easy: '简单', medium: '中等', hard: '进阶',
+    todayProgress: '今日进度',
+    allDone: '今天的训练全部完成！坚持就是胜利 💪',
+    markDone: '完成 ✓',
+    completed: '已完成 ✓',
+    streak: '连续天数',
+    totalDays: '累计训练',
+    totalExercises: '完成动作',
+    settingsGeneral: '通用设置',
+    language: '语言',
+    difficultyLabel: '训练难度',
+    dataManagement: '数据管理',
+    trainingDays: '已训练天数',
+    saraAssessments: 'SARA 评估次数',
+    resetData: '清除所有数据',
+    resetConfirm: '确定要清除所有训练记录吗？此操作不可恢复。',
+    navTrain: '训练',
+    navSara: '评估',
+    navCalendar: '日历',
+    navSettings: '设置',
+    weekdays: ['日','一','二','三','四','五','六'],
+    months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+    catBalance: '平衡训练',
+    catGait: '步态训练',
+    catCoord: '协调训练',
+    catCore: '核心力量',
+    safetyChair: '请在椅子或墙壁旁进行，确保安全',
+    safetySupport: '如感到不稳，请扶住支撑物',
+    safetySeated: '坐在稳固的椅子上进行',
+    safetyFloor: '在瑜伽垫或地毯上平躺进行，确保地面平整',
+    langName: '中文',
+    sets: '组', seconds: '秒', steps: '步', reps: '次',
+    eachSide: '每侧',
+    holdFor: '保持',
+    diffEasy: '简单', diffMedium: '中等', diffHard: '进阶',
+    // SARA
+    saraTitle: 'SARA 共济失调评估',
+    saraDesc: 'SARA（Scale for the Assessment and Rating of Ataxia）是国际通用的共济失调严重程度评估量表，包含 8 个维度，总分 0-40 分。分数越低越好。建议每周评估一次，追踪变化趋势。',
+    saraStart: '开始评估',
+    saraTotal: '总分',
+    saraTotalMax: '满分 40（越低越好）',
+    saraSave: '保存评估结果',
+    saraCancel: '取消',
+    saraTrend: '评分趋势',
+    saraHistory: '历史记录',
+    saraNoData: '还没有评估记录，点击上方按钮开始第一次评估',
+    saraLastDate: '上次评估',
+    saraSaved: '评估结果已保存！',
+    saraDeleteConfirm: '确定删除这条评估记录吗？',
+    // SARA items
+    sara1name: '1. 步态',
+    sara1desc: '行走能力：0=正常，1=轻微困难，2=明显摇晃但不需辅助，3=需少量帮助，4=需大量帮助，5=需持续帮助，6=需拐杖辅助，7=需助行器，8=无法行走',
+    sara2name: '2. 站姿',
+    sara2desc: '站立稳定性：0=正常，1=双脚并拢可站但有摇晃，2=双脚并拢不能站>10秒，3=自然站立不能站>10秒，4=只能有支撑站立，5=需大量支撑才能站，6=无法站立',
+    sara3name: '3. 坐姿',
+    sara3desc: '坐位平衡：0=正常，1=轻微困难，2=持续摇晃，3=需偶尔支撑，4=无法无支撑坐',
+    sara4name: '4. 言语',
+    sara4desc: '言语障碍：0=正常，1=提示时可发现异常，2=明显不清晰，3=部分词语难以理解，4=大部分难以理解，5=仅能说单个词，6=无法发出可理解的语音',
+    sara5name: '5. 指追踪（手指追踪试验）',
+    sara5desc: '手指跟随能力（取双侧平均值）：0=无震颤，1=偶尔可见震颤<2cm，2=持续震颤<5cm，3=震颤>5cm，4=无法完成',
+    sara6name: '6. 指鼻试验',
+    sara6desc: '指鼻动作精确度（取双侧平均值）：0=无震颤，1=末端轻微震颤，2=明显震颤幅度<5cm，3=震颤>5cm，4=无法完成',
+    sara7name: '7. 快速交替运动',
+    sara7desc: '双手快速翻转动作（取双侧平均值）：0=正常，1=轻微不规则，2=明显不规则但可辨认，3=非常不规则，4=无法完成',
+    sara8name: '8. 跟-胫试验',
+    sara8desc: '脚跟沿胫骨滑动（取双侧平均值）：0=正常，1=轻微偏离但末端接触良好，2=明显偏离并下滑，3=无法触碰膝盖，4=无法完成',
+    // Export
+    exportTitle: '导出数据给医生',
+    exportCSV: '导出 CSV（训练记录 + SARA 评分）',
+    exportPDF: '导出 PDF 康复报告',
+    pdfTitle: 'SCA3 居家康复报告',
+    pdfGenDate: '报告生成日期',
+    pdfTrainSummary: '训练概况',
+    pdfTotalDays: '累计训练天数',
+    pdfTotalExercises: '累计完成动作',
+    pdfCurrentStreak: '当前连续天数',
+    pdfSaraSummary: 'SARA 评估记录',
+    pdfDate: '日期',
+    pdfScore: '总分',
+    pdfNoSara: '暂无 SARA 评估记录',
+    pdfTrainDetail: '近期训练明细',
+    pdfDisclaimer: '本报告由 SCA3 居家康复 App 自动生成，仅供医生参考。SARA 评分为患者自评，可能与临床评估存在差异。',
+  },
+  en: {
+    appTitle: 'SCA3 Home Rehab',
+    difficulty: 'Difficulty',
+    easy: 'Easy', medium: 'Medium', hard: 'Advanced',
+    todayProgress: "Today's Progress",
+    allDone: "All exercises done today! Keep it up! 💪",
+    markDone: 'Done ✓',
+    completed: 'Completed ✓',
+    streak: 'Streak',
+    totalDays: 'Total Days',
+    totalExercises: 'Exercises',
+    settingsGeneral: 'General',
+    language: 'Language',
+    difficultyLabel: 'Difficulty',
+    dataManagement: 'Data',
+    trainingDays: 'Training Days',
+    saraAssessments: 'SARA Assessments',
+    resetData: 'Reset All Data',
+    resetConfirm: 'Delete all training records? This cannot be undone.',
+    navTrain: 'Train',
+    navSara: 'Assess',
+    navCalendar: 'Calendar',
+    navSettings: 'Settings',
+    weekdays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    catBalance: 'Balance',
+    catGait: 'Gait',
+    catCoord: 'Coordination',
+    catCore: 'Core',
+    safetyChair: 'Stay near a chair or wall for safety',
+    safetySupport: 'Hold onto support if you feel unsteady',
+    safetySeated: 'Perform seated on a stable chair',
+    safetyFloor: 'Lie on a yoga mat or carpet on a flat surface',
+    langName: 'English',
+    sets: 'sets', seconds: 'sec', steps: 'steps', reps: 'reps',
+    eachSide: 'each side',
+    holdFor: 'Hold',
+    diffEasy: 'Easy', diffMedium: 'Medium', diffHard: 'Advanced',
+    // SARA
+    saraTitle: 'SARA Ataxia Assessment',
+    saraDesc: 'SARA (Scale for the Assessment and Rating of Ataxia) is an internationally validated scale for measuring ataxia severity across 8 dimensions. Total score 0-40. Lower is better. Assess weekly to track changes.',
+    saraStart: 'Start Assessment',
+    saraTotal: 'Total Score',
+    saraTotalMax: 'Max 40 (lower is better)',
+    saraSave: 'Save Assessment',
+    saraCancel: 'Cancel',
+    saraTrend: 'Score Trend',
+    saraHistory: 'History',
+    saraNoData: 'No assessments yet. Tap above to start your first one.',
+    saraLastDate: 'Last assessed',
+    saraSaved: 'Assessment saved!',
+    saraDeleteConfirm: 'Delete this assessment record?',
+    sara1name: '1. Gait',
+    sara1desc: 'Walking ability: 0=normal, 1=slight difficulty, 2=clearly staggering, no support, 3=needs some help, 4=needs significant help, 5=needs continuous support, 6=needs cane/crutch, 7=needs walker, 8=unable to walk',
+    sara2name: '2. Stance',
+    sara2desc: 'Standing stability: 0=normal, 1=feet together with sway, 2=feet together <10s, 3=natural stance <10s, 4=only with support, 5=needs heavy support, 6=unable to stand',
+    sara3name: '3. Sitting',
+    sara3desc: 'Seated balance: 0=normal, 1=slight difficulty, 2=continuous sway, 3=occasional support needed, 4=unable to sit unsupported',
+    sara4name: '4. Speech',
+    sara4desc: 'Speech disturbance: 0=normal, 1=noticeable on close listen, 2=clearly slurred, 3=some words hard to understand, 4=mostly hard to understand, 5=single words only, 6=no intelligible speech',
+    sara5name: '5. Finger Chase',
+    sara5desc: 'Finger tracking (average both sides): 0=no dysmetria, 1=occasional <2cm, 2=persistent <5cm, 3=>5cm, 4=unable to perform',
+    sara6name: '6. Nose-Finger Test',
+    sara6desc: 'Finger-to-nose accuracy (average both sides): 0=no tremor, 1=mild terminal tremor, 2=marked tremor <5cm, 3=>5cm, 4=unable to perform',
+    sara7name: '7. Rapid Alternating Movements',
+    sara7desc: 'Hand pronation/supination (average both sides): 0=normal, 1=slightly irregular, 2=clearly irregular, 3=very irregular, 4=unable to perform',
+    sara8name: '8. Heel-Shin Slide',
+    sara8desc: 'Heel along shin (average both sides): 0=normal, 1=slightly abnormal, 2=clearly abnormal with deviation, 3=cannot reach knee, 4=unable to perform',
+    // Export
+    exportTitle: 'Export Data for Doctor',
+    exportCSV: 'Export CSV (Training + SARA Scores)',
+    exportPDF: 'Export PDF Report',
+    pdfTitle: 'SCA3 Home Rehabilitation Report',
+    pdfGenDate: 'Report generated',
+    pdfTrainSummary: 'Training Summary',
+    pdfTotalDays: 'Total Training Days',
+    pdfTotalExercises: 'Total Exercises Completed',
+    pdfCurrentStreak: 'Current Streak',
+    pdfSaraSummary: 'SARA Assessment Records',
+    pdfDate: 'Date',
+    pdfScore: 'Total Score',
+    pdfNoSara: 'No SARA assessment records',
+    pdfTrainDetail: 'Recent Training Details',
+    pdfDisclaimer: 'This report was auto-generated by the SCA3 Home Rehab app for reference only. SARA scores are self-assessed and may differ from clinical evaluation.',
+  }
+};
+
+let lang = localStorage.getItem('sca3_lang') || 'zh';
+function t(key) { return I18N[lang][key] || key; }
+
+function toggleLang() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('sca3_lang', lang);
+  applyLang();
+  renderExercises();
+  renderCalendar();
+  renderSaraPage();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang][key]) el.textContent = I18N[lang][key];
+  });
+  document.getElementById('langBtn').textContent = lang === 'zh' ? 'EN' : '中文';
+  document.getElementById('headerTitle').textContent = t('appTitle');
+  document.getElementById('settingsLang').textContent = t('langName');
+  const diffKeys = { easy: 'diffEasy', medium: 'diffMedium', hard: 'diffHard' };
+  document.getElementById('settingsDiff').textContent = t(diffKeys[difficulty]);
+  updateHeaderDate();
+}
+
+function updateHeaderDate() {
+  const d = new Date();
+  if (lang === 'zh') {
+    document.getElementById('headerDate').textContent =
+      `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  } else {
+    document.getElementById('headerDate').textContent =
+      d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+}
+
+// ==================== SARA Definition ====================
+const SARA_ITEMS = [
+  { key: 'sara1', max: 8 },
+  { key: 'sara2', max: 6 },
+  { key: 'sara3', max: 4 },
+  { key: 'sara4', max: 6 },
+  { key: 'sara5', max: 4 },
+  { key: 'sara6', max: 4 },
+  { key: 'sara7', max: 4 },
+  { key: 'sara8', max: 4 },
+];
+
+let saraScores = [0, 0, 0, 0, 0, 0, 0, 0];
+
+// ==================== Exercise Database ====================
+const EXERCISES = {
+  balance: [
+    {
+      id: 'b1',
+      zh: { name: '双脚并立站', desc: '双脚并拢站立，保持身体稳定。可以先睁眼，适应后尝试闭眼。' },
+      en: { name: 'Feet Together Stand', desc: 'Stand with feet together, maintain stability. Start with eyes open, try closing eyes when comfortable.' },
+      easy: { hold: 20, sets: 2, unit: 'seconds' },
+      medium: { hold: 30, sets: 3, unit: 'seconds' },
+      hard: { hold: 45, sets: 3, unit: 'seconds' },
+      safety: 'safetyChair',
+    },
+    {
+      id: 'b2',
+      zh: { name: '前后脚站立', desc: '一只脚在前，一只脚在后，脚跟对脚尖，保持平衡。' },
+      en: { name: 'Tandem Stand', desc: 'Place one foot directly in front of the other, heel to toe. Hold balance.' },
+      easy: { hold: 10, sets: 2, unit: 'seconds', perSide: true },
+      medium: { hold: 20, sets: 2, unit: 'seconds', perSide: true },
+      hard: { hold: 30, sets: 3, unit: 'seconds', perSide: true },
+      safety: 'safetyChair',
+    },
+    {
+      id: 'b3',
+      zh: { name: '重心左右转移', desc: '双脚与肩同宽站立，缓慢将重心移到左脚，再移到右脚。' },
+      en: { name: 'Weight Shifting', desc: 'Stand shoulder-width apart. Slowly shift weight to left foot, then right foot.' },
+      easy: { reps: 8, sets: 2, unit: 'reps' },
+      medium: { reps: 12, sets: 2, unit: 'reps' },
+      hard: { reps: 15, sets: 3, unit: 'reps' },
+      safety: 'safetySupport',
+    },
+    {
+      id: 'b4',
+      zh: { name: '坐到站练习', desc: '从椅子上站起来，再缓慢坐下。尽量不用手撑。' },
+      en: { name: 'Sit to Stand', desc: 'Rise from a chair and slowly sit back down. Try not to use your hands.' },
+      easy: { reps: 5, sets: 2, unit: 'reps' },
+      medium: { reps: 8, sets: 2, unit: 'reps' },
+      hard: { reps: 10, sets: 3, unit: 'reps' },
+      safety: 'safetyChair',
+    },
+    {
+      id: 'b5',
+      zh: { name: '单脚站立', desc: '抬起一只脚离地，保持平衡。两侧交替进行。' },
+      en: { name: 'Single Leg Stand', desc: 'Lift one foot off the ground and hold balance. Alternate sides.' },
+      easy: { hold: 5, sets: 2, unit: 'seconds', perSide: true },
+      medium: { hold: 10, sets: 2, unit: 'seconds', perSide: true },
+      hard: { hold: 15, sets: 3, unit: 'seconds', perSide: true },
+      safety: 'safetyChair',
+    },
+  ],
+  gait: [
+    {
+      id: 'g1',
+      zh: { name: '直线行走', desc: '沿一条直线行走，脚跟接脚尖，像走平衡木。' },
+      en: { name: 'Tandem Walking', desc: 'Walk in a straight line, placing heel directly in front of toe, like on a balance beam.' },
+      easy: { reps: 6, sets: 2, unit: 'steps' },
+      medium: { reps: 10, sets: 2, unit: 'steps' },
+      hard: { reps: 15, sets: 3, unit: 'steps' },
+      safety: 'safetySupport',
+    },
+    {
+      id: 'g2',
+      zh: { name: '侧步行走', desc: '面朝前方，向左侧跨步走，再向右侧跨步走。' },
+      en: { name: 'Side Stepping', desc: 'Face forward and step sideways to the left, then to the right.' },
+      easy: { reps: 6, sets: 2, unit: 'steps', perSide: true },
+      medium: { reps: 10, sets: 2, unit: 'steps', perSide: true },
+      hard: { reps: 12, sets: 3, unit: 'steps', perSide: true },
+      safety: 'safetySupport',
+    },
+    {
+      id: 'g3',
+      zh: { name: '高抬腿行走', desc: '行走时有意识地抬高膝盖，缓慢稳定地前进。' },
+      en: { name: 'High Knee Walking', desc: 'Walk while deliberately lifting knees high. Move slowly and steadily.' },
+      easy: { reps: 6, sets: 2, unit: 'steps' },
+      medium: { reps: 10, sets: 2, unit: 'steps' },
+      hard: { reps: 14, sets: 3, unit: 'steps' },
+      safety: 'safetySupport',
+    },
+    {
+      id: 'g4',
+      zh: { name: '后退行走', desc: '缓慢向后退步行走，注意身后空间安全。' },
+      en: { name: 'Backward Walking', desc: 'Walk slowly backward. Ensure clear space behind you.' },
+      easy: { reps: 4, sets: 2, unit: 'steps' },
+      medium: { reps: 8, sets: 2, unit: 'steps' },
+      hard: { reps: 10, sets: 3, unit: 'steps' },
+      safety: 'safetyChair',
+    },
+  ],
+  coord: [
+    {
+      id: 'c1',
+      zh: { name: '指鼻练习', desc: '伸直手臂，用食指触碰鼻尖，再伸回去。两手交替进行。' },
+      en: { name: 'Finger to Nose', desc: 'Extend arm fully, touch your nose with index finger, extend back. Alternate hands.' },
+      easy: { reps: 6, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 10, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 12, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'c2',
+      zh: { name: '交替翻手', desc: '双手放在膝盖上，交替翻转手掌（掌心朝上→朝下），逐渐加快。' },
+      en: { name: 'Alternating Hand Flips', desc: 'Place hands on knees, alternate flipping palms up and down. Gradually increase speed.' },
+      easy: { reps: 8, sets: 2, unit: 'reps' },
+      medium: { reps: 12, sets: 2, unit: 'reps' },
+      hard: { reps: 16, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+  ],
+  core: [
+    {
+      id: 'k1',
+      zh: { name: '桥式运动', desc: '平躺屈膝，双脚踩地，抬起臀部至身体成一条线，保持后放下。' },
+      en: { name: 'Bridge Exercise', desc: 'Lie on back with knees bent, feet flat. Lift hips until body forms a straight line, hold, then lower.' },
+      easy: { reps: 5, sets: 2, unit: 'reps' },
+      medium: { reps: 8, sets: 2, unit: 'reps' },
+      hard: { reps: 10, sets: 3, unit: 'reps' },
+      safety: 'safetyFloor',
+    },
+    {
+      id: 'k2',
+      zh: { name: '坐姿骨盆前后倾', desc: '坐在椅子上，缓慢将骨盆向前倾（挺腰），再向后倾（弓腰），交替进行。' },
+      en: { name: 'Seated Pelvic Tilts', desc: 'Sit on a chair. Slowly tilt pelvis forward (arch back), then backward (round back). Alternate.' },
+      easy: { reps: 6, sets: 2, unit: 'reps' },
+      medium: { reps: 10, sets: 2, unit: 'reps' },
+      hard: { reps: 12, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+  ]
+};
+
+// ==================== State ====================
+let difficulty = localStorage.getItem('sca3_diff') || 'easy';
+let calYear, calMonth;
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getTodayPlan() {
+  const stored = localStorage.getItem('sca3_plan_' + todayKey());
+  if (stored) return JSON.parse(stored);
+  return generatePlan();
+}
+
+function generatePlan() {
+  const dayOfWeek = new Date().getDay();
+  const bPool = EXERCISES.balance;
+  const gPool = EXERCISES.gait;
+  const cPool = EXERCISES.coord;
+  const kPool = EXERCISES.core;
+
+  const pick = (pool, count, offset) => {
+    let result = [];
+    for (let i = 0; i < count; i++) {
+      result.push(pool[(offset + i) % pool.length]);
+    }
+    return result;
+  };
+
+  const plan = [
+    ...pick(bPool, 3, dayOfWeek),
+    ...pick(gPool, 2, dayOfWeek),
+    ...pick(cPool, 1, dayOfWeek),
+    ...pick(kPool, 1, dayOfWeek),
+  ];
+
+  const planData = plan.map(ex => ({ id: ex.id, done: false }));
+  localStorage.setItem('sca3_plan_' + todayKey(), JSON.stringify(planData));
+  return planData;
+}
+
+function findExercise(id) {
+  for (const cat of Object.values(EXERCISES)) {
+    const found = cat.find(e => e.id === id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function getCategoryName(id) {
+  const prefix = id[0];
+  const keys = { b: 'catBalance', g: 'catGait', c: 'catCoord', k: 'catCore' };
+  return t(keys[prefix]);
+}
+
+// ==================== Render Exercises ====================
+function renderExercises() {
+  const plan = getTodayPlan();
+  const list = document.getElementById('exerciseList');
+  list.innerHTML = '';
+
+  const doneCount = plan.filter(p => p.done).length;
+  document.getElementById('progressCount').textContent = `${doneCount}/${plan.length}`;
+  document.getElementById('progressBar').style.width = `${(doneCount / plan.length) * 100}%`;
+  document.getElementById('dayCompleteMsg').classList.toggle('show', doneCount === plan.length);
+
+  plan.forEach((item, idx) => {
+    const ex = findExercise(item.id);
+    if (!ex) return;
+    const spec = ex[difficulty];
+    const info = ex[lang];
+
+    let specText = '';
+    if (spec.hold) {
+      specText = `${spec.sets} ${t('sets')} × ${t('holdFor')} ${spec.hold} ${t('seconds')}`;
+      if (spec.perSide) specText += ` (${t('eachSide')})`;
+    } else if (spec.reps) {
+      specText = `${spec.sets} ${t('sets')} × ${spec.reps} ${t(spec.unit)}`;
+      if (spec.perSide) specText += ` (${t('eachSide')})`;
+    }
+
+    const card = document.createElement('div');
+    card.className = `exercise-card${item.done ? ' done' : ''}`;
+    card.innerHTML = `
+      <div class="exercise-category">${getCategoryName(item.id)}</div>
+      <div class="exercise-name">${info.name}</div>
+      <div class="exercise-desc">${info.desc}</div>
+      <div class="exercise-spec">${specText}</div>
+      <div class="exercise-safety">${t(ex.safety)}</div>
+      <button class="check-btn ${item.done ? 'completed' : 'todo'}"
+              onclick="toggleExercise(${idx})">
+        ${item.done ? t('completed') : t('markDone')}
+      </button>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function toggleExercise(idx) {
+  const key = 'sca3_plan_' + todayKey();
+  const plan = JSON.parse(localStorage.getItem(key));
+  plan[idx].done = !plan[idx].done;
+  localStorage.setItem(key, JSON.stringify(plan));
+  saveDayRecord(plan);
+  renderExercises();
+  updateStats();
+}
+
+function saveDayRecord(plan) {
+  const doneCount = plan.filter(p => p.done).length;
+  const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
+  records[todayKey()] = { done: doneCount, total: plan.length };
+  localStorage.setItem('sca3_records', JSON.stringify(records));
+}
+
+function setDifficulty(level) {
+  difficulty = level;
+  localStorage.setItem('sca3_diff', level);
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.level === level);
+  });
+  const diffKeys = { easy: 'diffEasy', medium: 'diffMedium', hard: 'diffHard' };
+  document.getElementById('settingsDiff').textContent = t(diffKeys[level]);
+  renderExercises();
+}
+
+// ==================== SARA ====================
+function getSaraRecords() {
+  return JSON.parse(localStorage.getItem('sca3_sara') || '[]');
+}
+
+function startSara() {
+  saraScores = [0, 0, 0, 0, 0, 0, 0, 0];
+  document.getElementById('saraIntroSection').style.display = 'none';
+  document.getElementById('saraForm').classList.add('active');
+  renderSaraForm();
+}
+
+function cancelSara() {
+  document.getElementById('saraForm').classList.remove('active');
+  document.getElementById('saraIntroSection').style.display = '';
+}
+
+function renderSaraForm() {
+  const list = document.getElementById('saraItemList');
+  list.innerHTML = '';
+
+  SARA_ITEMS.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'sara-item';
+    div.innerHTML = `
+      <div class="sara-item-header">
+        <span class="sara-item-name">${t(item.key + 'name')}</span>
+        <span class="sara-item-score" id="saraScore${idx}">${saraScores[idx]}</span>
+      </div>
+      <div class="sara-item-desc">${t(item.key + 'desc')}</div>
+      <div class="sara-slider-row">
+        <span>0</span>
+        <input type="range" class="sara-slider" min="0" max="${item.max}" value="${saraScores[idx]}"
+               oninput="updateSaraScore(${idx}, this.value)">
+        <span>${item.max}</span>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  updateSaraTotal();
+}
+
+function updateSaraScore(idx, val) {
+  saraScores[idx] = parseInt(val);
+  document.getElementById('saraScore' + idx).textContent = val;
+  updateSaraTotal();
+}
+
+function updateSaraTotal() {
+  const total = saraScores.reduce((a, b) => a + b, 0);
+  document.getElementById('saraTotalScore').textContent = total;
+}
+
+function submitSara() {
+  const records = getSaraRecords();
+  const total = saraScores.reduce((a, b) => a + b, 0);
+  records.push({
+    date: todayKey(),
+    scores: [...saraScores],
+    total: total
+  });
+  localStorage.setItem('sca3_sara', JSON.stringify(records));
+
+  cancelSara();
+  renderSaraPage();
+  updateSettingsStats();
+  alert(t('saraSaved'));
+}
+
+function deleteSaraRecord(idx) {
+  if (!confirm(t('saraDeleteConfirm'))) return;
+  const records = getSaraRecords();
+  records.splice(idx, 1);
+  localStorage.setItem('sca3_sara', JSON.stringify(records));
+  renderSaraPage();
+  updateSettingsStats();
+}
+
+function renderSaraPage() {
+  const records = getSaraRecords();
+  const hasData = records.length > 0;
+
+  document.getElementById('saraNoData').style.display = hasData ? 'none' : 'block';
+  document.getElementById('saraChartCard').style.display = hasData ? 'block' : 'none';
+  document.getElementById('saraHistoryCard').style.display = hasData ? 'block' : 'none';
+
+  if (hasData) {
+    const last = records[records.length - 1];
+    document.getElementById('saraLastInfo').textContent =
+      `${t('saraLastDate')}: ${last.date}  |  ${t('saraTotal')}: ${last.total}/40`;
+
+    renderSaraChart(records);
+    renderSaraHistory(records);
+  } else {
+    document.getElementById('saraLastInfo').textContent = '';
+  }
+}
+
+function renderSaraChart(records) {
+  const canvas = document.getElementById('saraChart');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+  const pad = { top: 20, right: 20, bottom: 40, left: 45 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = '#e8edf2';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (chartH / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(W - pad.right, y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#999';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(40 - i * 10, pad.left - 8, y + 4);
+  }
+
+  if (records.length < 2) {
+    // Single point
+    const r = records[0];
+    const x = pad.left + chartW / 2;
+    const y = pad.top + (r.total / 40) * chartH;
+    ctx.fillStyle = '#8e44ad';
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(r.total, x, y - 12);
+
+    ctx.fillStyle = '#999';
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.fillText(r.date, x, H - pad.bottom + 20);
+    return;
+  }
+
+  // Multiple points — line chart
+  const maxShow = 12;
+  const data = records.slice(-maxShow);
+  const stepX = chartW / (data.length - 1);
+
+  // Line
+  ctx.strokeStyle = '#8e44ad';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  data.forEach((r, i) => {
+    const x = pad.left + stepX * i;
+    const y = pad.top + (r.total / 40) * chartH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Fill area
+  ctx.globalAlpha = 0.1;
+  ctx.fillStyle = '#8e44ad';
+  ctx.lineTo(pad.left + stepX * (data.length - 1), pad.top + chartH);
+  ctx.lineTo(pad.left, pad.top + chartH);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Points and labels
+  data.forEach((r, i) => {
+    const x = pad.left + stepX * i;
+    const y = pad.top + (r.total / 40) * chartH;
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#8e44ad';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 12px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(r.total, x, y - 10);
+
+    // Date labels
+    ctx.fillStyle = '#999';
+    ctx.font = '10px -apple-system, sans-serif';
+    const dateLabel = r.date.slice(5);
+    ctx.save();
+    ctx.translate(x, H - pad.bottom + 14);
+    ctx.rotate(-0.4);
+    ctx.fillText(dateLabel, 0, 0);
+    ctx.restore();
+  });
+
+  // Trend arrow
+  if (data.length >= 2) {
+    const first = data[0].total;
+    const last = data[data.length - 1].total;
+    const diff = last - first;
+    const arrow = diff < 0 ? '↓' : diff > 0 ? '↑' : '→';
+    const color = diff < 0 ? '#27ae60' : diff > 0 ? '#c0392b' : '#999';
+    ctx.fillStyle = color;
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${arrow} ${Math.abs(diff)}`, W - pad.right, pad.top - 4);
+  }
+}
+
+function renderSaraHistory(records) {
+  const list = document.getElementById('saraHistoryList');
+  list.innerHTML = '';
+
+  const itemNames = SARA_ITEMS.map((item, i) => t(item.key + 'name'));
+
+  [...records].reverse().forEach((r, ri) => {
+    const idx = records.length - 1 - ri;
+    const row = document.createElement('div');
+    row.className = 'sara-history-item';
+    row.style.cursor = 'pointer';
+    row.style.flexWrap = 'wrap';
+
+    let detailHtml = '<div style="width:100%;font-size:13px;color:#777;margin-top:8px;display:none" class="sara-detail">';
+    r.scores.forEach((s, i) => {
+      detailHtml += `${itemNames[i]}: <strong>${s}</strong>/${SARA_ITEMS[i].max} &nbsp; `;
+    });
+    detailHtml += `<br><button onclick="event.stopPropagation();deleteSaraRecord(${idx})" style="margin-top:8px;color:#c0392b;background:none;border:1px solid #c0392b;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">${lang === 'zh' ? '删除' : 'Delete'}</button>`;
+    detailHtml += '</div>';
+
+    row.innerHTML = `
+      <span class="sara-history-date">${r.date}</span>
+      <span class="sara-history-score">${r.total}/40</span>
+      ${detailHtml}
+    `;
+
+    row.onclick = function() {
+      const detail = this.querySelector('.sara-detail');
+      detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+    };
+
+    list.appendChild(row);
+  });
+}
+
+// ==================== Calendar ====================
+function renderCalendar() {
+  const now = new Date();
+  if (calYear === undefined) { calYear = now.getFullYear(); calMonth = now.getMonth(); }
+
+  document.getElementById('calMonth').textContent =
+    lang === 'zh' ? `${calYear}年${calMonth+1}月` : `${t('months')[calMonth]} ${calYear}`;
+
+  document.getElementById('calWeekdays').innerHTML =
+    t('weekdays').map(d => `<span class="cal-weekday">${d}</span>`).join('');
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
+  const today = now.getDate();
+  const isCurrentMonth = calYear === now.getFullYear() && calMonth === now.getMonth();
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<span class="cal-day empty"></span>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const record = records[dateKey];
+    let cls = 'cal-day';
+    if (isCurrentMonth && d === today) cls += ' today';
+    if (record) cls += record.done >= record.total ? ' done' : ' partial';
+    html += `<span class="${cls}">${d}</span>`;
+  }
+  document.getElementById('calDays').innerHTML = html;
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+// ==================== Stats ====================
+function updateStats() {
+  const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
+  const dates = Object.keys(records).sort();
+  const completeDays = dates.filter(d => records[d].done >= records[d].total);
+  const totalEx = dates.reduce((sum, d) => sum + records[d].done, 0);
+
+  document.getElementById('totalDays').textContent = completeDays.length;
+  document.getElementById('totalExercises').textContent = totalEx;
+  document.getElementById('settingsTotalDays').textContent = completeDays.length;
+
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (records[key] && records[key].done >= records[key].total) streak++;
+    else if (i > 0) break;
+  }
+  document.getElementById('currentStreak').textContent = streak;
+}
+
+function updateSettingsStats() {
+  const saraRecords = getSaraRecords();
+  document.getElementById('settingsSaraCount').textContent = saraRecords.length;
+}
+
+// ==================== Export CSV ====================
+function exportCSV() {
+  const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
+  const saraRecords = getSaraRecords();
+
+  let csv = 'SCA3 Home Rehab Data Export\n\n';
+
+  // Training records
+  csv += 'Training Records\n';
+  csv += 'Date,Exercises Completed,Total Exercises,Completion Rate\n';
+  const dates = Object.keys(records).sort();
+  dates.forEach(d => {
+    const r = records[d];
+    const rate = r.total > 0 ? Math.round((r.done / r.total) * 100) : 0;
+    csv += `${d},${r.done},${r.total},${rate}%\n`;
+  });
+
+  csv += '\nSARA Assessment Records\n';
+  csv += 'Date,1.Gait(0-8),2.Stance(0-6),3.Sitting(0-4),4.Speech(0-6),5.Finger Chase(0-4),6.Nose-Finger(0-4),7.Rapid Alternating(0-4),8.Heel-Shin(0-4),Total(0-40)\n';
+  saraRecords.forEach(r => {
+    csv += `${r.date},${r.scores.join(',')},${r.total}\n`;
+  });
+
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `SCA3_Rehab_Data_${todayKey()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ==================== Export PDF ====================
+function exportPDF() {
+  const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
+  const saraRecords = getSaraRecords();
+  const dates = Object.keys(records).sort();
+  const completeDays = dates.filter(d => records[d].done >= records[d].total);
+  const totalEx = dates.reduce((sum, d) => sum + records[d].done, 0);
+
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (records[key] && records[key].done >= records[key].total) streak++;
+    else if (i > 0) break;
+  }
+
+  const saraItemLabels = [
+    '1. Gait / 步态 (0-8)',
+    '2. Stance / 站姿 (0-6)',
+    '3. Sitting / 坐姿 (0-4)',
+    '4. Speech / 言语 (0-6)',
+    '5. Finger Chase / 指追踪 (0-4)',
+    '6. Nose-Finger / 指鼻 (0-4)',
+    '7. Rapid Alt. / 快速交替 (0-4)',
+    '8. Heel-Shin / 跟-胫 (0-4)',
+  ];
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>${t('pdfTitle')}</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; color: #1a1a2e; font-size: 14px; line-height: 1.6; }
+    h1 { color: #1a5276; border-bottom: 3px solid #1a5276; padding-bottom: 8px; font-size: 24px; }
+    h2 { color: #2980b9; margin-top: 30px; font-size: 18px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th { background: #1a5276; color: white; padding: 10px 12px; text-align: left; font-size: 13px; }
+    td { padding: 8px 12px; border-bottom: 1px solid #dde4ea; font-size: 13px; }
+    tr:nth-child(even) { background: #f8f9fa; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+    .summary-box { background: #eaf2f8; border-radius: 12px; padding: 20px; text-align: center; }
+    .summary-num { font-size: 32px; font-weight: 800; color: #1a5276; }
+    .summary-label { font-size: 13px; color: #555; }
+    .disclaimer { margin-top: 40px; padding: 16px; background: #fef9e7; border-radius: 8px; font-size: 12px; color: #856404; }
+    .trend-arrow { font-weight: bold; }
+    .trend-down { color: #27ae60; }
+    .trend-up { color: #c0392b; }
+    .print-note { text-align: center; color: #999; font-size: 12px; margin-bottom: 20px; }
+    @media print { .print-note { display: none; } }
+  </style></head><body>`;
+
+  html += `<div class="print-note">Ctrl+P / Cmd+P ${lang === 'zh' ? '打印或保存为 PDF' : 'to print or save as PDF'}</div>`;
+  html += `<h1>${t('pdfTitle')}</h1>`;
+  html += `<p>${t('pdfGenDate')}: ${todayKey()}</p>`;
+
+  // Training summary
+  html += `<h2>${t('pdfTrainSummary')}</h2>`;
+  html += `<div class="summary-grid">
+    <div class="summary-box"><div class="summary-num">${completeDays.length}</div><div class="summary-label">${t('pdfTotalDays')}</div></div>
+    <div class="summary-box"><div class="summary-num">${totalEx}</div><div class="summary-label">${t('pdfTotalExercises')}</div></div>
+    <div class="summary-box"><div class="summary-num">${streak}</div><div class="summary-label">${t('pdfCurrentStreak')}</div></div>
+  </div>`;
+
+  // SARA records
+  html += `<h2>${t('pdfSaraSummary')}</h2>`;
+  if (saraRecords.length === 0) {
+    html += `<p>${t('pdfNoSara')}</p>`;
+  } else {
+    html += `<table><tr><th>${t('pdfDate')}</th>`;
+    saraItemLabels.forEach(l => { html += `<th>${l}</th>`; });
+    html += `<th>${t('pdfScore')}</th></tr>`;
+    saraRecords.forEach(r => {
+      html += `<tr><td>${r.date}</td>`;
+      r.scores.forEach(s => { html += `<td>${s}</td>`; });
+      html += `<td><strong>${r.total}</strong>/40</td></tr>`;
+    });
+    html += '</table>';
+
+    if (saraRecords.length >= 2) {
+      const first = saraRecords[0];
+      const last = saraRecords[saraRecords.length - 1];
+      const diff = last.total - first.total;
+      const cls = diff < 0 ? 'trend-down' : diff > 0 ? 'trend-up' : '';
+      const arrow = diff < 0 ? '↓' : diff > 0 ? '↑' : '→';
+      html += `<p class="trend-arrow ${cls}">${lang === 'zh' ? '趋势' : 'Trend'}: ${first.total} → ${last.total} (${arrow}${Math.abs(diff)})</p>`;
+    }
+  }
+
+  // Recent training detail
+  html += `<h2>${t('pdfTrainDetail')}</h2>`;
+  const recentDates = dates.slice(-30);
+  if (recentDates.length === 0) {
+    html += '<p>-</p>';
+  } else {
+    html += `<table><tr><th>${t('pdfDate')}</th><th>${lang === 'zh' ? '完成' : 'Done'}</th><th>${lang === 'zh' ? '总计' : 'Total'}</th><th>${lang === 'zh' ? '完成率' : 'Rate'}</th></tr>`;
+    recentDates.forEach(d => {
+      const r = records[d];
+      const rate = r.total > 0 ? Math.round((r.done / r.total) * 100) : 0;
+      html += `<tr><td>${d}</td><td>${r.done}</td><td>${r.total}</td><td>${rate}%</td></tr>`;
+    });
+    html += '</table>';
+  }
+
+  html += `<div class="disclaimer">${t('pdfDisclaimer')}</div>`;
+  html += '</body></html>';
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ==================== Navigation ====================
+function showPage(pageId, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  if (pageId === 'pageCalendar') { renderCalendar(); updateStats(); }
+  if (pageId === 'pageSara') { renderSaraPage(); }
+  if (pageId === 'pageSettings') { updateSettingsStats(); }
+}
+
+// ==================== Reset ====================
+function confirmReset() {
+  if (confirm(t('resetConfirm'))) {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('sca3_'));
+    keys.forEach(k => localStorage.removeItem(k));
+    difficulty = 'easy';
+    lang = 'zh';
+    location.reload();
+  }
+}
+
+// ==================== Init ====================
+function init() {
+  setDifficulty(difficulty);
+  applyLang();
+  renderExercises();
+  updateStats();
+  updateSettingsStats();
+  const plan = getTodayPlan();
+  saveDayRecord(plan);
+}
+
+init();
+</script>
+</body>
+</html>

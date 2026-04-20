@@ -1,0 +1,17 @@
+{
+  "name": "SCA3 居家康复 | Home Rehab",
+  "short_name": "SCA3 Rehab",
+  "description": "SCA3 home rehabilitation training tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#1a5276",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a5276' width='100' height='100' rx='20'/><text x='50' y='55' text-anchor='middle' dominant-baseline='middle' font-size='50' fill='white'>康</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
