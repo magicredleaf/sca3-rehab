@@ -130,6 +130,50 @@ body {
 .check-btn.todo:active { background: var(--accent-dark); transform: scale(0.98); }
 .check-btn.completed { background: #e8f5e9; color: var(--accent); }
 
+.btn-row { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+.cant-do-btn {
+  padding: 16px 8px;
+  border-radius: 12px;
+  border: 1px solid #d0d7de;
+  background: #f6f8fa;
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cant-do-btn:active { background: #eaeef2; transform: scale(0.98); }
+
+.enable-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: white;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.enable-btn:active { background: #e8f5e9; }
+
+#toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 15px;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  max-width: 80%;
+  text-align: center;
+}
+#toast.show { opacity: 1; }
+
 /* Progress bar */
 .progress-section {
   background: var(--card);
@@ -714,6 +758,12 @@ body {
     </div>
 
     <div class="settings-section">
+      <div class="settings-title" data-i18n="disabledTitle">已停用的动作</div>
+      <div id="disabledList"></div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:8px;line-height:1.5" data-i18n="disabledHint">如果某个动作因病情做不了，点训练页面上该动作的"做不了"按钮即可停用。停用后它不再出现在每日训练里。</div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title" data-i18n="backupTitle">数据备份与恢复</div>
       <button class="export-btn csv" onclick="backupData()" style="background:var(--accent)">
         <span data-i18n="backupBtn">备份数据到文件</span>
@@ -842,6 +892,12 @@ const I18N = {
     restoreSuccess: '数据恢复成功！页面将刷新。',
     restoreError: '文件格式错误，请选择正确的备份文件。',
     restoreConfirm: '恢复将覆盖当前所有数据，确定继续吗？',
+    cannotDo: '做不了',
+    disabledTitle: '已停用的动作',
+    disabledEmpty: '暂无停用动作',
+    disabledHint: '如果某个动作因病情做不了，点训练页面上该动作的"做不了"按钮即可停用。停用后它不再出现在每日训练里。',
+    enableBtn: '恢复',
+    disabledToast: '已停用 — 可在设置中恢复',
   },
   en: {
     appTitle: 'SCA3 Home Rehab',
@@ -934,6 +990,12 @@ const I18N = {
     restoreSuccess: 'Data restored! Page will reload.',
     restoreError: 'Invalid file format. Please select a valid backup file.',
     restoreConfirm: 'Restore will overwrite all current data. Continue?',
+    cannotDo: "Can't do",
+    disabledTitle: 'Disabled Exercises',
+    disabledEmpty: 'No disabled exercises',
+    disabledHint: "If a movement is beyond what you can do, tap \"Can't do\" on that exercise to disable it. It won't appear in daily training anymore.",
+    enableBtn: 'Restore',
+    disabledToast: 'Disabled — restore in Settings',
   }
 };
 
@@ -947,6 +1009,7 @@ function toggleLang() {
   renderExercises();
   renderCalendar();
   renderSaraPage();
+  renderDisabledList();
 }
 
 function applyLang() {
@@ -1133,14 +1196,18 @@ function getTodayPlan() {
 
 function generatePlan() {
   const dayOfWeek = new Date().getDay();
-  const bPool = EXERCISES.balance;
-  const gPool = EXERCISES.gait;
-  const cPool = EXERCISES.coord;
-  const kPool = EXERCISES.core;
+  const disabled = getDisabled();
+  const filter = pool => pool.filter(ex => !disabled.includes(ex.id));
+  const bPool = filter(EXERCISES.balance);
+  const gPool = filter(EXERCISES.gait);
+  const cPool = filter(EXERCISES.coord);
+  const kPool = filter(EXERCISES.core);
 
   const pick = (pool, count, offset) => {
+    if (pool.length === 0) return [];
+    const n = Math.min(count, pool.length);
     let result = [];
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < n; i++) {
       result.push(pool[(offset + i) % pool.length]);
     }
     return result;
@@ -1206,10 +1273,15 @@ function renderExercises() {
       <div class="exercise-desc">${info.desc}</div>
       <div class="exercise-spec">${specText}</div>
       <div class="exercise-safety">${t(ex.safety)}</div>
-      <button class="check-btn ${item.done ? 'completed' : 'todo'}"
-              onclick="toggleExercise(${idx})">
-        ${item.done ? t('completed') : t('markDone')}
-      </button>
+      <div class="btn-row">
+        <button class="check-btn ${item.done ? 'completed' : 'todo'}"
+                onclick="toggleExercise(${idx})">
+          ${item.done ? t('completed') : t('markDone')}
+        </button>
+        <button class="cant-do-btn" onclick="disableExercise('${item.id}')">
+          ${t('cannotDo')}
+        </button>
+      </div>
     `;
     list.appendChild(card);
   });
@@ -1230,6 +1302,65 @@ function saveDayRecord(plan) {
   const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
   records[todayKey()] = { done: doneCount, total: plan.length };
   localStorage.setItem('sca3_records', JSON.stringify(records));
+}
+
+function getDisabled() {
+  return JSON.parse(localStorage.getItem('sca3_disabled') || '[]');
+}
+
+function disableExercise(id) {
+  const disabled = getDisabled();
+  if (!disabled.includes(id)) {
+    disabled.push(id);
+    localStorage.setItem('sca3_disabled', JSON.stringify(disabled));
+  }
+  const key = 'sca3_plan_' + todayKey();
+  const plan = JSON.parse(localStorage.getItem(key) || '[]');
+  const newPlan = plan.filter(p => p.id !== id);
+  localStorage.setItem(key, JSON.stringify(newPlan));
+  saveDayRecord(newPlan);
+  renderExercises();
+  updateStats();
+  showToast(t('disabledToast'));
+}
+
+function enableExercise(id) {
+  const disabled = getDisabled().filter(d => d !== id);
+  localStorage.setItem('sca3_disabled', JSON.stringify(disabled));
+  renderDisabledList();
+}
+
+function renderDisabledList() {
+  const container = document.getElementById('disabledList');
+  if (!container) return;
+  const disabled = getDisabled();
+  if (disabled.length === 0) {
+    container.innerHTML = `<div style="color:var(--text-light);font-size:14px;padding:4px 0">${t('disabledEmpty')}</div>`;
+    return;
+  }
+  container.innerHTML = disabled.map(id => {
+    const ex = findExercise(id);
+    if (!ex) return '';
+    const name = ex[lang].name;
+    const cat = getCategoryName(id);
+    return `<div class="setting-row">
+      <span class="setting-label"><span style="color:var(--text-light);font-size:13px">${cat}</span><br>${name}</span>
+      <button class="enable-btn" onclick="enableExercise('${id}')">${t('enableBtn')}</button>
+    </div>`;
+  }).join('');
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
 function setDifficulty(level) {
@@ -1564,6 +1695,7 @@ function updateStats() {
 function updateSettingsStats() {
   const saraRecords = getSaraRecords();
   document.getElementById('settingsSaraCount').textContent = saraRecords.length;
+  renderDisabledList();
 }
 
 // ==================== Export CSV ====================
