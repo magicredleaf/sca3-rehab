@@ -130,6 +130,30 @@ body {
 .check-btn.todo:active { background: var(--accent-dark); transform: scale(0.98); }
 .check-btn.completed { background: #e8f5e9; color: var(--accent); }
 
+.support-toggle {
+  display: inline-block;
+  margin: 10px 0 4px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  border: 1px dashed #b0b8c0;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.support-toggle:active { background: #eef1f4; }
+.support-toggle.on {
+  display: block;
+  border: 1px solid var(--orange);
+  background: #fff4e6;
+  color: #b35900;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 10px;
+}
+
 .btn-row { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
 .cant-do-btn {
   padding: 16px 8px;
@@ -893,6 +917,9 @@ const I18N = {
     restoreError: '文件格式错误，请选择正确的备份文件。',
     restoreConfirm: '恢复将覆盖当前所有数据，确定继续吗？',
     cannotDo: '做不了',
+    needSupport: '需扶支撑',
+    needSupportAsk: '需扶支撑？',
+    supportReminder: '双手扶住椅背、桌沿或墙面进行',
     disabledTitle: '已停用的动作',
     disabledEmpty: '暂无停用动作',
     disabledHint: '如果某个动作因病情做不了，点训练页面上该动作的"做不了"按钮即可停用。停用后它不再出现在每日训练里。',
@@ -991,6 +1018,9 @@ const I18N = {
     restoreError: 'Invalid file format. Please select a valid backup file.',
     restoreConfirm: 'Restore will overwrite all current data. Continue?',
     cannotDo: "Can't do",
+    needSupport: 'Need support',
+    needSupportAsk: 'Need support?',
+    supportReminder: 'Hold onto chair back, table edge, or wall',
     disabledTitle: 'Disabled Exercises',
     disabledEmpty: 'No disabled exercises',
     disabledHint: "If a movement is beyond what you can do, tap \"Can't do\" on that exercise to disable it. It won't appear in daily training anymore.",
@@ -1265,6 +1295,11 @@ function renderExercises() {
       if (spec.perSide) specText += ` (${t('eachSide')})`;
     }
 
+    const needsSupport = getSupportList().includes(item.id);
+    const supportHtml = needsSupport
+      ? `<div class="support-toggle on" onclick="toggleSupport('${item.id}')">⚠ ${t('needSupport')} — ${t('supportReminder')}</div>`
+      : `<div class="support-toggle" onclick="toggleSupport('${item.id}')">☐ ${t('needSupportAsk')}</div>`;
+
     const card = document.createElement('div');
     card.className = `exercise-card${item.done ? ' done' : ''}`;
     card.innerHTML = `
@@ -1272,6 +1307,7 @@ function renderExercises() {
       <div class="exercise-name">${info.name}</div>
       <div class="exercise-desc">${info.desc}</div>
       <div class="exercise-spec">${specText}</div>
+      ${supportHtml}
       <div class="exercise-safety">${t(ex.safety)}</div>
       <div class="btn-row">
         <button class="check-btn ${item.done ? 'completed' : 'todo'}"
@@ -1306,6 +1342,21 @@ function saveDayRecord(plan) {
 
 function getDisabled() {
   return JSON.parse(localStorage.getItem('sca3_disabled') || '[]');
+}
+
+function getSupportList() {
+  return JSON.parse(localStorage.getItem('sca3_support') || '[]');
+}
+
+function toggleSupport(id) {
+  let list = getSupportList();
+  if (list.includes(id)) {
+    list = list.filter(i => i !== id);
+  } else {
+    list.push(id);
+  }
+  localStorage.setItem('sca3_support', JSON.stringify(list));
+  renderExercises();
 }
 
 function disableExercise(id) {
