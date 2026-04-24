@@ -870,6 +870,8 @@ const I18N = {
     catGait: '步态训练',
     catCoord: '协调训练',
     catCore: '核心力量',
+    catSpeech: '言语训练',
+    catEye: '眼球训练',
     safetyChair: '请在椅子或墙壁旁进行，确保安全',
     safetySupport: '如感到不稳，请扶住支撑物',
     safetySeated: '坐在稳固的椅子上进行',
@@ -974,6 +976,8 @@ const I18N = {
     catGait: 'Gait',
     catCoord: 'Coordination',
     catCore: 'Core',
+    catSpeech: 'Speech',
+    catEye: 'Eye',
     safetyChair: 'Stay near a chair or wall for safety',
     safetySupport: 'Hold onto support if you feel unsteady',
     safetySeated: 'Perform seated on a stable chair',
@@ -1149,6 +1153,33 @@ const EXERCISES = {
       hard: { hold: 15, sets: 3, unit: 'seconds', perSide: true },
       safety: 'safetyChair',
     },
+    {
+      id: 'b6',
+      zh: { name: '提踵（踮脚尖）', desc: '双脚平踩地面，缓慢抬起脚跟站成踮脚尖，再放下。锻炼小腿和踝关节稳定。' },
+      en: { name: 'Heel Raises', desc: 'Stand with feet flat. Slowly raise heels up onto toes, then lower. Strengthens calves and ankle stability.' },
+      easy: { reps: 8, sets: 2, unit: 'reps' },
+      medium: { reps: 12, sets: 2, unit: 'reps' },
+      hard: { reps: 15, sets: 3, unit: 'reps' },
+      safety: 'safetyChair',
+    },
+    {
+      id: 'b7',
+      zh: { name: '提脚尖', desc: '双脚平踩地面，脚跟着地，缓慢抬起脚尖再放下。激活胫前肌，改善步态中的拖脚。' },
+      en: { name: 'Toe Raises', desc: 'Stand with feet flat, heels on the ground. Slowly lift toes up and lower. Activates shin muscles, helps prevent foot drag.' },
+      easy: { reps: 8, sets: 2, unit: 'reps' },
+      medium: { reps: 12, sets: 2, unit: 'reps' },
+      hard: { reps: 15, sets: 3, unit: 'reps' },
+      safety: 'safetyChair',
+    },
+    {
+      id: 'b8',
+      zh: { name: '闭眼并立', desc: '双脚并拢站立，闭上眼睛保持平衡。这是 SARA 量表第 2 项的基础训练，务必有人在旁或紧贴墙。' },
+      en: { name: 'Eyes Closed Stand', desc: 'Stand with feet together, close eyes, maintain balance. Directly trains SARA item 2. Must have support or spotter nearby.' },
+      easy: { hold: 5, sets: 2, unit: 'seconds' },
+      medium: { hold: 10, sets: 2, unit: 'seconds' },
+      hard: { hold: 20, sets: 3, unit: 'seconds' },
+      safety: 'safetyChair',
+    },
   ],
   gait: [
     {
@@ -1187,6 +1218,24 @@ const EXERCISES = {
       hard: { reps: 10, sets: 3, unit: 'steps' },
       safety: 'safetyChair',
     },
+    {
+      id: 'g5',
+      zh: { name: '原地踏步', desc: '站立原地踏步，交替抬膝。适合空间有限或不敢走远时维持步态训练。' },
+      en: { name: 'Marching in Place', desc: 'March in place, alternating knee lifts. Good when space is limited or walking far feels unsafe.' },
+      easy: { reps: 10, sets: 2, unit: 'steps' },
+      medium: { reps: 20, sets: 2, unit: 'steps' },
+      hard: { reps: 30, sets: 3, unit: 'steps' },
+      safety: 'safetyChair',
+    },
+    {
+      id: 'g6',
+      zh: { name: '绕 8 字行走', desc: '放两个物体相距约 1 米，绕成 8 字形缓慢行走。训练转弯和重心切换。' },
+      en: { name: 'Figure-8 Walking', desc: 'Place two objects ~1m apart. Walk around them in a figure-8 pattern. Trains turning and weight transitions.' },
+      easy: { reps: 2, sets: 2, unit: 'reps' },
+      medium: { reps: 3, sets: 2, unit: 'reps' },
+      hard: { reps: 5, sets: 3, unit: 'reps' },
+      safety: 'safetySupport',
+    },
   ],
   coord: [
     {
@@ -1207,6 +1256,33 @@ const EXERCISES = {
       hard: { reps: 16, sets: 3, unit: 'reps' },
       safety: 'safetySeated',
     },
+    {
+      id: 'c3',
+      zh: { name: '拇指依次点指', desc: '拇指依次触碰食指、中指、无名指、小指指尖，再反向。节奏由慢到快，两手分别做。' },
+      en: { name: 'Thumb-to-Finger Sequence', desc: 'Touch thumb to index, middle, ring, pinky tips in sequence, then reverse. Slow to fast. Each hand.' },
+      easy: { reps: 5, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 10, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 15, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'c4',
+      zh: { name: '空中画圆', desc: '手臂伸直，用食指在空中缓慢画一个大圆。顺时针、逆时针各若干次。两手交替。' },
+      en: { name: 'Draw Circles in Air', desc: 'Extend arm, draw a large circle in the air with index finger. Clockwise and counter-clockwise. Alternate hands.' },
+      easy: { reps: 4, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 6, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 10, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'c5',
+      zh: { name: '快速握拳松拳', desc: '双手同时用力握拳再完全张开，节奏稳定。尽量快，但每次都要握紧张开到位。' },
+      en: { name: 'Rapid Fist Clench', desc: 'Rapidly clench fists tight, then fully open. Steady rhythm. As fast as you can while fully completing each rep.' },
+      easy: { reps: 10, sets: 2, unit: 'reps' },
+      medium: { reps: 20, sets: 2, unit: 'reps' },
+      hard: { reps: 30, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
   ],
   core: [
     {
@@ -1225,6 +1301,73 @@ const EXERCISES = {
       easy: { reps: 6, sets: 2, unit: 'reps' },
       medium: { reps: 10, sets: 2, unit: 'reps' },
       hard: { reps: 12, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'k3',
+      zh: { name: '仰卧交替蹬腿', desc: '平躺屈膝，双脚抬离地面。交替向前蹬出一条腿再收回，像慢速骑自行车。' },
+      en: { name: 'Supine Alternating Leg Extension', desc: 'Lie on back with knees bent and feet off the floor. Alternately extend one leg forward, then return. Like slow-motion cycling.' },
+      easy: { reps: 5, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 8, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 12, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetyFloor',
+    },
+    {
+      id: 'k4',
+      zh: { name: '四点支撑对侧伸展（鸟狗）', desc: '双手双膝四点支撑跪姿，同时伸出一只手臂和对侧腿，保持 3 秒后收回。两侧交替。' },
+      en: { name: 'Bird Dog', desc: 'On hands and knees. Extend one arm and the opposite leg simultaneously, hold 3 seconds, return. Alternate sides.' },
+      easy: { reps: 4, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 6, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 10, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetyFloor',
+    },
+  ],
+  speech: [
+    {
+      id: 's1',
+      zh: { name: '帕-他-咔音节', desc: '连续清晰地念"帕-他-咔"（pa-ta-ka），保持稳定节奏。这是共济失调构音障碍的经典训练。' },
+      en: { name: 'Pa-Ta-Ka Syllables', desc: 'Repeat "pa-ta-ka" clearly and rhythmically at a steady pace. Classic exercise for ataxic dysarthria.' },
+      easy: { reps: 10, sets: 2, unit: 'reps' },
+      medium: { reps: 20, sets: 2, unit: 'reps' },
+      hard: { reps: 30, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 's2',
+      zh: { name: '延长元音', desc: '深吸一口气，尽可能长地发出"啊——"。控制音量平稳，声音不抖、不断。' },
+      en: { name: 'Sustained Vowel', desc: 'Take a deep breath, sustain "ah——" as long as possible. Keep volume steady — no breaks, no tremor.' },
+      easy: { hold: 5, sets: 3, unit: 'seconds' },
+      medium: { hold: 8, sets: 3, unit: 'seconds' },
+      hard: { hold: 12, sets: 3, unit: 'seconds' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 's3',
+      zh: { name: '朗读短句', desc: '大声清楚地朗读几个短句（或绕口令）。每个字都说清楚，不追求快。' },
+      en: { name: 'Read Aloud', desc: 'Read a few short sentences (or tongue-twisters) aloud, clearly. Articulate each word — speed is not the goal.' },
+      easy: { reps: 3, sets: 2, unit: 'reps' },
+      medium: { reps: 5, sets: 2, unit: 'reps' },
+      hard: { reps: 8, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+  ],
+  eye: [
+    {
+      id: 'e1',
+      zh: { name: '凝视训练', desc: '伸直手臂，竖起食指在眼前。盯住指尖保持眼球不漂移，头部不动。' },
+      en: { name: 'Gaze Hold', desc: 'Extend arm, hold index finger up at eye level. Stare at the fingertip, keep eyes from drifting and head still.' },
+      easy: { hold: 10, sets: 2, unit: 'seconds' },
+      medium: { hold: 20, sets: 2, unit: 'seconds' },
+      hard: { hold: 30, sets: 3, unit: 'seconds' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'e2',
+      zh: { name: '眼球跟踪', desc: '头部不动，眼睛平稳跟随缓慢移动的手指（左右、上下）。越慢越好，避免跳跃。' },
+      en: { name: 'Smooth Pursuit', desc: 'Keep head still. Follow slowly moving finger with eyes (left-right, up-down). Slower is better — avoid jumpy tracking.' },
+      easy: { reps: 5, sets: 2, unit: 'reps' },
+      medium: { reps: 10, sets: 2, unit: 'reps' },
+      hard: { reps: 15, sets: 3, unit: 'reps' },
       safety: 'safetySeated',
     },
   ]
@@ -1254,6 +1397,8 @@ function generatePlan() {
   const gPool = filter(EXERCISES.gait);
   const cPool = filter(EXERCISES.coord);
   const kPool = filter(EXERCISES.core);
+  const sPool = filter(EXERCISES.speech);
+  const ePool = filter(EXERCISES.eye);
 
   const pick = (pool, count, offset) => {
     if (pool.length === 0) return [];
@@ -1266,10 +1411,12 @@ function generatePlan() {
   };
 
   const plan = [
-    ...pick(bPool, 3, dayOfWeek),
+    ...pick(bPool, 2, dayOfWeek),
     ...pick(gPool, 2, dayOfWeek),
     ...pick(cPool, 1, dayOfWeek),
     ...pick(kPool, 1, dayOfWeek),
+    ...pick(sPool, 1, dayOfWeek),
+    ...pick(ePool, 1, dayOfWeek),
   ];
 
   const planData = plan.map(ex => ({ id: ex.id, done: false }));
@@ -1287,7 +1434,7 @@ function findExercise(id) {
 
 function getCategoryName(id) {
   const prefix = id[0];
-  const keys = { b: 'catBalance', g: 'catGait', c: 'catCoord', k: 'catCore' };
+  const keys = { b: 'catBalance', g: 'catGait', c: 'catCoord', k: 'catCore', s: 'catSpeech', e: 'catEye' };
   return t(keys[prefix]);
 }
 
