@@ -1587,7 +1587,7 @@ function renderSaraChart(records) {
     // Single point
     const r = records[0];
     const x = pad.left + chartW / 2;
-    const y = pad.top + (r.total / 40) * chartH;
+    const y = pad.top + (1 - r.total / 40) * chartH;
     ctx.fillStyle = '#8e44ad';
     ctx.beginPath();
     ctx.arc(x, y, 6, 0, Math.PI * 2);
@@ -1616,7 +1616,7 @@ function renderSaraChart(records) {
   ctx.beginPath();
   data.forEach((r, i) => {
     const x = pad.left + stepX * i;
-    const y = pad.top + (r.total / 40) * chartH;
+    const y = pad.top + (1 - r.total / 40) * chartH;
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
@@ -1634,7 +1634,7 @@ function renderSaraChart(records) {
   // Points and labels
   data.forEach((r, i) => {
     const x = pad.left + stepX * i;
-    const y = pad.top + (r.total / 40) * chartH;
+    const y = pad.top + (1 - r.total / 40) * chartH;
 
     ctx.fillStyle = '#fff';
     ctx.beginPath();
