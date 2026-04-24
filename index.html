@@ -333,6 +333,22 @@ body {
 .cal-day.done { background: var(--accent); color: white; }
 .cal-day.partial { background: #fdebd0; color: var(--orange); }
 .cal-day.empty { visibility: hidden; }
+.cal-day { cursor: pointer; }
+.cal-day.selected { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+#dayDetailPanel {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-top: 12px;
+  box-shadow: var(--shadow);
+}
+.day-detail-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+.day-detail-row { font-size: 15px; margin: 6px 0; }
+.day-detail-ex-list { list-style: none; padding-left: 0; margin: 8px 0 0; font-size: 14px; }
+.day-detail-ex-list li { padding: 3px 0; color: var(--text-light); }
+.day-detail-ex-list li.done { color: var(--accent); font-weight: 600; }
+.day-detail-empty { color: var(--text-light); font-size: 14px; }
 
 /* Streak */
 .streak-card {
@@ -740,6 +756,7 @@ body {
       <div class="cal-weekdays" id="calWeekdays"></div>
       <div class="cal-days" id="calDays"></div>
     </div>
+    <div id="dayDetailPanel" style="display:none"></div>
   </div>
 
   <!-- Settings Page -->
@@ -925,6 +942,8 @@ const I18N = {
     disabledHint: '如果某个动作因病情做不了，点训练页面上该动作的"做不了"按钮即可停用。停用后它不再出现在每日训练里。',
     enableBtn: '恢复',
     disabledToast: '已停用 — 可在设置中恢复',
+    dayTraining: '训练',
+    noRecordDay: '这一天没有训练或评估记录',
   },
   en: {
     appTitle: 'SCA3 Home Rehab',
@@ -1026,6 +1045,8 @@ const I18N = {
     disabledHint: "If a movement is beyond what you can do, tap \"Can't do\" on that exercise to disable it. It won't appear in daily training anymore.",
     enableBtn: 'Restore',
     disabledToast: 'Disabled — restore in Settings',
+    dayTraining: 'Training',
+    noRecordDay: 'No training or assessment records on this day',
   }
 };
 
@@ -1212,6 +1233,7 @@ const EXERCISES = {
 // ==================== State ====================
 let difficulty = localStorage.getItem('sca3_diff') || 'easy';
 let calYear, calMonth;
+let selectedDay = null;
 
 function todayKey() {
   const d = new Date();
@@ -1526,8 +1548,12 @@ function renderSaraPage() {
 
 function renderSaraChart(records) {
   const canvas = document.getElementById('saraChart');
-  const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) {
+    requestAnimationFrame(() => renderSaraChart(records));
+    return;
+  }
+  const dpr = window.devicePixelRatio || 1;
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
   const ctx = canvas.getContext('2d');
@@ -1708,15 +1734,66 @@ function renderCalendar() {
     let cls = 'cal-day';
     if (isCurrentMonth && d === today) cls += ' today';
     if (record) cls += record.done >= record.total ? ' done' : ' partial';
-    html += `<span class="${cls}">${d}</span>`;
+    if (selectedDay === dateKey) cls += ' selected';
+    html += `<span class="${cls}" onclick="showDayDetail('${dateKey}')">${d}</span>`;
   }
   document.getElementById('calDays').innerHTML = html;
+
+  if (selectedDay) renderDayDetail();
+}
+
+function showDayDetail(dateKey) {
+  selectedDay = dateKey;
+  renderCalendar();
+}
+
+function renderDayDetail() {
+  const panel = document.getElementById('dayDetailPanel');
+  if (!selectedDay) { panel.style.display = 'none'; return; }
+
+  const dateKey = selectedDay;
+  const records = JSON.parse(localStorage.getItem('sca3_records') || '{}');
+  const plan = JSON.parse(localStorage.getItem('sca3_plan_' + dateKey) || 'null');
+  const saraOfDay = getSaraRecords().find(r => r.date === dateKey);
+  const record = records[dateKey];
+
+  const [y, m, d] = dateKey.split('-').map(Number);
+  const dateLabel = lang === 'zh' ? `${y}年${m}月${d}日` : `${t('months')[m-1]} ${d}, ${y}`;
+
+  let html = `<div class="day-detail-title">${dateLabel}</div>`;
+
+  const hasAnything = record || plan || saraOfDay;
+  if (!hasAnything) {
+    html += `<div class="day-detail-empty">${t('noRecordDay')}</div>`;
+  } else {
+    if (plan && plan.length > 0) {
+      const done = plan.filter(p => p.done).length;
+      html += `<div class="day-detail-row"><strong>${t('dayTraining')}:</strong> ${done}/${plan.length}</div>`;
+      html += '<ul class="day-detail-ex-list">';
+      plan.forEach(p => {
+        const ex = findExercise(p.id);
+        if (!ex) return;
+        const name = ex[lang].name;
+        html += `<li class="${p.done ? 'done' : ''}">${p.done ? '✓' : '○'} ${name}</li>`;
+      });
+      html += '</ul>';
+    } else if (record) {
+      html += `<div class="day-detail-row"><strong>${t('dayTraining')}:</strong> ${record.done}/${record.total}</div>`;
+    }
+    if (saraOfDay) {
+      html += `<div class="day-detail-row"><strong>SARA:</strong> ${saraOfDay.total}/40</div>`;
+    }
+  }
+
+  panel.innerHTML = html;
+  panel.style.display = 'block';
 }
 
 function calNav(dir) {
   calMonth += dir;
   if (calMonth < 0) { calMonth = 11; calYear--; }
   if (calMonth > 11) { calMonth = 0; calYear++; }
+  selectedDay = null;
   renderCalendar();
 }
 

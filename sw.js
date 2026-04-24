@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sca3-rehab-v3';
+const CACHE_NAME = 'sca3-rehab-v4';
 const ASSETS = [
   './',
   './index.html',
