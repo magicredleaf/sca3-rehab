@@ -179,6 +179,78 @@ body {
 }
 .enable-btn:active { background: #e8f5e9; }
 
+.setup-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.setup-modal.show { display: flex; }
+.setup-content {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 24px 20px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.setup-content h2 {
+  font-size: 19px;
+  margin: 0 0 6px;
+  color: var(--primary);
+}
+.setup-content .setup-hint {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+.setup-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1.5px solid #e0e6ed;
+  background: #fafbfc;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.setup-opt:active { border-color: var(--accent); background: #f1f7ff; }
+.setup-opt strong { display: block; font-size: 16px; color: var(--text); margin-bottom: 3px; }
+.setup-opt small { font-size: 13px; color: var(--text-light); }
+.setup-skip {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.bulk-btn-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.bulk-disable-btn {
+  flex: 1;
+  min-width: 130px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--orange);
+  background: #fff4e6;
+  color: #b35900;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bulk-disable-btn:active { background: #ffe4cc; }
+
 #toast {
   position: fixed;
   bottom: 90px;
@@ -799,7 +871,23 @@ body {
     </div>
 
     <div class="settings-section">
+      <div class="settings-title" data-i18n="abilityProfile">能力档案</div>
+      <div class="setting-row">
+        <span class="setting-label" data-i18n="currentAbility">当前状态</span>
+        <span class="setting-value" id="settingsAbility">未设置</span>
+      </div>
+      <button class="export-btn csv" onclick="showSetupModal()" style="background:var(--primary)">
+        <span data-i18n="changeAbility">重新选择</span>
+      </button>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title" data-i18n="disabledTitle">已停用的动作</div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:8px" data-i18n="bulkDisableTitle">一键停用整个类别</div>
+      <div class="bulk-btn-row">
+        <button class="bulk-disable-btn" onclick="bulkDisableCategory('balance')" data-i18n="bulkDisableBalance">停用所有平衡</button>
+        <button class="bulk-disable-btn" onclick="bulkDisableCategory('gait')" data-i18n="bulkDisableGait">停用所有步态</button>
+      </div>
       <div id="disabledList"></div>
       <div style="font-size:13px;color:var(--text-light);margin-top:8px;line-height:1.5" data-i18n="disabledHint">如果某个动作因病情做不了，点训练页面上该动作的"做不了"按钮即可停用。停用后它不再出现在每日训练里。</div>
     </div>
@@ -835,6 +923,26 @@ body {
       <span class="nav-icon">&#9881;</span>
       <span class="nav-label" data-i18n="navSettings">设置</span>
     </button>
+  </div>
+</div>
+
+<div class="setup-modal" id="setupModal">
+  <div class="setup-content">
+    <h2 data-i18n="setupTitle">选择你目前的状态</h2>
+    <div class="setup-hint" data-i18n="setupHint">这帮助 app 推荐合适的动作。可在设置里随时修改。</div>
+    <button class="setup-opt" onclick="setupAbility('standalone')">
+      <strong data-i18n="abilityStandalone">可以独立站立行走</strong>
+      <small data-i18n="abilityStandaloneDesc">所有动作都会显示</small>
+    </button>
+    <button class="setup-opt" onclick="setupAbility('with_support')">
+      <strong data-i18n="abilityWithSupport">需扶才能站立</strong>
+      <small data-i18n="abilityWithSupportDesc">显示所有动作；建议给站立类标"需扶支撑"</small>
+    </button>
+    <button class="setup-opt" onclick="setupAbility('seated')">
+      <strong data-i18n="abilitySeated">暂时不能站立</strong>
+      <small data-i18n="abilitySeatedDesc">跳过所有平衡和步态动作</small>
+    </button>
+    <button class="setup-skip" onclick="setupAbility(null)" data-i18n="setupSkip">稍后设置</button>
   </div>
 </div>
 
@@ -946,6 +1054,23 @@ const I18N = {
     disabledToast: '已停用 — 可在设置中恢复',
     dayTraining: '训练',
     noRecordDay: '这一天没有训练或评估记录',
+    setupTitle: '选择你目前的状态',
+    setupHint: '这帮助 app 推荐合适的动作。可在设置里随时修改。',
+    abilityStandalone: '可以独立站立行走',
+    abilityStandaloneDesc: '所有动作都会显示',
+    abilityWithSupport: '需扶才能站立',
+    abilityWithSupportDesc: '显示所有动作；建议给站立类标"需扶支撑"',
+    abilitySeated: '暂时不能站立',
+    abilitySeatedDesc: '跳过所有平衡和步态动作',
+    setupSkip: '稍后设置',
+    abilityProfile: '能力档案',
+    currentAbility: '当前状态',
+    abilityNotSet: '未设置',
+    changeAbility: '重新选择',
+    bulkDisableTitle: '一键停用整个类别',
+    bulkDisableBalance: '停用所有平衡',
+    bulkDisableGait: '停用所有步态',
+    bulkDisabledToast: '已批量停用',
   },
   en: {
     appTitle: 'SCA3 Home Rehab',
@@ -1051,6 +1176,23 @@ const I18N = {
     disabledToast: 'Disabled — restore in Settings',
     dayTraining: 'Training',
     noRecordDay: 'No training or assessment records on this day',
+    setupTitle: 'Select your current state',
+    setupHint: 'This helps the app suggest suitable exercises. You can change it anytime in Settings.',
+    abilityStandalone: 'Can stand and walk independently',
+    abilityStandaloneDesc: 'Show all exercises',
+    abilityWithSupport: 'Need support to stand',
+    abilityWithSupportDesc: "Show all; recommend marking standing ones as 'Need support'",
+    abilitySeated: 'Cannot stand right now',
+    abilitySeatedDesc: 'Skip all balance and gait exercises',
+    setupSkip: 'Set up later',
+    abilityProfile: 'Ability Profile',
+    currentAbility: 'Current state',
+    abilityNotSet: 'Not set',
+    changeAbility: 'Change',
+    bulkDisableTitle: 'Disable an entire category',
+    bulkDisableBalance: 'Disable all balance',
+    bulkDisableGait: 'Disable all gait',
+    bulkDisabledToast: 'Bulk disabled',
   }
 };
 
@@ -1065,6 +1207,7 @@ function toggleLang() {
   renderCalendar();
   renderSaraPage();
   renderDisabledList();
+  renderAbilityLabel();
 }
 
 function applyLang() {
@@ -1283,6 +1426,33 @@ const EXERCISES = {
       hard: { reps: 30, sets: 3, unit: 'reps' },
       safety: 'safetySeated',
     },
+    {
+      id: 'c6',
+      zh: { name: '翻硬币/扣纽扣', desc: '桌上放一些硬币或纽扣，逐个翻面或拣起放入容器。精细指尖控制训练。' },
+      en: { name: 'Coin Flip / Button Pick', desc: 'Place coins or buttons on a table. Flip them over or pick them up into a container one by one. Trains fingertip precision.' },
+      easy: { reps: 5, sets: 2, unit: 'reps' },
+      medium: { reps: 10, sets: 2, unit: 'reps' },
+      hard: { reps: 15, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'c7',
+      zh: { name: '空中写"8"字', desc: '伸出食指在空中缓慢画横着的 8 字（∞）。两手分别做；进阶时两手同时画相反方向。' },
+      en: { name: 'Air Figure-8', desc: 'Extend index finger, slowly trace a horizontal 8 (∞) in the air. Each hand. Advanced: both hands tracing opposite directions at once.' },
+      easy: { reps: 5, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 8, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 12, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'c8',
+      zh: { name: '节拍拍手', desc: '按稳定节拍拍手（如每秒一次），逐渐加快或变换节奏。训练时序协调。' },
+      en: { name: 'Rhythm Clap', desc: 'Clap to a steady beat (e.g., once per second). Gradually speed up or change rhythm. Trains timing coordination.' },
+      easy: { reps: 10, sets: 2, unit: 'reps' },
+      medium: { reps: 20, sets: 2, unit: 'reps' },
+      hard: { reps: 30, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
   ],
   core: [
     {
@@ -1321,6 +1491,24 @@ const EXERCISES = {
       hard: { reps: 10, sets: 3, unit: 'reps', perSide: true },
       safety: 'safetyFloor',
     },
+    {
+      id: 'k5',
+      zh: { name: '坐姿侧屈', desc: '坐在椅子上，双手自然下垂。身体缓慢向左侧倾，感受腰侧拉伸；再向右侧倾。' },
+      en: { name: 'Seated Lateral Bend', desc: 'Sit on a chair, arms relaxed. Slowly bend body to the left, feel a stretch on the side, then bend to the right.' },
+      easy: { reps: 5, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 8, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 12, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'k6',
+      zh: { name: '坐姿转体', desc: '坐稳，双脚不动，缓慢将上半身向左转，再向右转。手可放胸前或扶椅背。' },
+      en: { name: 'Seated Trunk Rotation', desc: 'Sit stable, feet planted. Slowly rotate upper body to the left, then to the right. Hands across chest or holding chair back.' },
+      easy: { reps: 5, sets: 2, unit: 'reps', perSide: true },
+      medium: { reps: 8, sets: 2, unit: 'reps', perSide: true },
+      hard: { reps: 12, sets: 3, unit: 'reps', perSide: true },
+      safety: 'safetySeated',
+    },
   ],
   speech: [
     {
@@ -1350,6 +1538,24 @@ const EXERCISES = {
       hard: { reps: 8, sets: 3, unit: 'reps' },
       safety: 'safetySeated',
     },
+    {
+      id: 's4',
+      zh: { name: '鼓腮/噘嘴吹气', desc: '闭嘴用力鼓腮 5 秒，再放松；然后噘嘴吹气 5 秒。锻炼口腔与呼吸肌。' },
+      en: { name: 'Cheek Puff & Lip Blow', desc: 'Close lips, puff cheeks for 5 sec, release. Then pucker lips and blow for 5 sec. Strengthens oral and breathing muscles.' },
+      easy: { reps: 5, sets: 2, unit: 'reps' },
+      medium: { reps: 8, sets: 2, unit: 'reps' },
+      hard: { reps: 12, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 's5',
+      zh: { name: '一口气数数', desc: '深吸一口气，一口气从 1 数到尽可能大的数（清晰发音不含糊）。锻炼肺活量和呼吸控制。' },
+      en: { name: 'Breath Count', desc: 'Take a deep breath, count up clearly on a single breath, going as high as you can. Trains lung capacity and breath control.' },
+      easy: { reps: 1, sets: 3, unit: 'reps' },
+      medium: { reps: 1, sets: 4, unit: 'reps' },
+      hard: { reps: 1, sets: 5, unit: 'reps' },
+      safety: 'safetySeated',
+    },
   ],
   eye: [
     {
@@ -1365,6 +1571,24 @@ const EXERCISES = {
       id: 'e2',
       zh: { name: '眼球跟踪', desc: '头部不动，眼睛平稳跟随缓慢移动的手指（左右、上下）。越慢越好，避免跳跃。' },
       en: { name: 'Smooth Pursuit', desc: 'Keep head still. Follow slowly moving finger with eyes (left-right, up-down). Slower is better — avoid jumpy tracking.' },
+      easy: { reps: 5, sets: 2, unit: 'reps' },
+      medium: { reps: 10, sets: 2, unit: 'reps' },
+      hard: { reps: 15, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'e3',
+      zh: { name: '远近交替对焦', desc: '伸直手臂看远处一个点，然后看近处指尖（约 30cm），两点交替对焦。改善眼球调节。' },
+      en: { name: 'Near-Far Focus Shift', desc: 'Extend arm, look at a distant point, then shift focus to your fingertip (~30cm away). Alternate. Trains eye accommodation.' },
+      easy: { reps: 8, sets: 2, unit: 'reps' },
+      medium: { reps: 12, sets: 2, unit: 'reps' },
+      hard: { reps: 20, sets: 3, unit: 'reps' },
+      safety: 'safetySeated',
+    },
+    {
+      id: 'e4',
+      zh: { name: '行扫视', desc: '找一行字（书或屏幕），眼睛从行首跳到行尾，再跳回来。头不动，快速精确跳转。' },
+      en: { name: 'Saccade Practice', desc: 'Find a line of text (book or screen). Jump eyes from start to end and back. Keep head still — quick precise jumps.' },
       easy: { reps: 5, sets: 2, unit: 'reps' },
       medium: { reps: 10, sets: 2, unit: 'reps' },
       hard: { reps: 15, sets: 3, unit: 'reps' },
@@ -1511,6 +1735,61 @@ function saveDayRecord(plan) {
 
 function getDisabled() {
   return JSON.parse(localStorage.getItem('sca3_disabled') || '[]');
+}
+
+function bulkDisableCategory(cat) {
+  const pool = EXERCISES[cat];
+  if (!pool) return;
+  const ids = pool.map(e => e.id);
+  let disabled = getDisabled();
+  ids.forEach(id => { if (!disabled.includes(id)) disabled.push(id); });
+  localStorage.setItem('sca3_disabled', JSON.stringify(disabled));
+  const key = 'sca3_plan_' + todayKey();
+  const stored = localStorage.getItem(key);
+  if (stored) {
+    const newPlan = JSON.parse(stored).filter(p => !ids.includes(p.id));
+    localStorage.setItem(key, JSON.stringify(newPlan));
+    saveDayRecord(newPlan);
+  }
+  renderExercises();
+  renderDisabledList();
+  updateStats();
+  showToast(t('bulkDisabledToast'));
+}
+
+function showSetupModal() {
+  document.getElementById('setupModal').classList.add('show');
+}
+
+function setupAbility(level) {
+  if (level === 'seated') {
+    const ids = [...EXERCISES.balance.map(e => e.id), ...EXERCISES.gait.map(e => e.id)];
+    let disabled = getDisabled();
+    ids.forEach(id => { if (!disabled.includes(id)) disabled.push(id); });
+    localStorage.setItem('sca3_disabled', JSON.stringify(disabled));
+    const key = 'sca3_plan_' + todayKey();
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      const newPlan = JSON.parse(stored).filter(p => !ids.includes(p.id));
+      localStorage.setItem(key, JSON.stringify(newPlan));
+      saveDayRecord(newPlan);
+    }
+  }
+  if (level) localStorage.setItem('sca3_ability', level);
+  localStorage.setItem('sca3_setup_done', '1');
+  document.getElementById('setupModal').classList.remove('show');
+  renderExercises();
+  renderDisabledList();
+  renderAbilityLabel();
+  updateStats();
+}
+
+function renderAbilityLabel() {
+  const el = document.getElementById('settingsAbility');
+  if (!el) return;
+  const level = localStorage.getItem('sca3_ability');
+  const map = { standalone: 'abilityStandalone', with_support: 'abilityWithSupport', seated: 'abilitySeated' };
+  el.textContent = level && map[level] ? t(map[level]) : t('abilityNotSet');
 }
 
 function getSupportList() {
@@ -1971,6 +2250,7 @@ function updateSettingsStats() {
   const saraRecords = getSaraRecords();
   document.getElementById('settingsSaraCount').textContent = saraRecords.length;
   renderDisabledList();
+  renderAbilityLabel();
 }
 
 // ==================== Export CSV ====================
@@ -2193,6 +2473,9 @@ function init() {
   updateSettingsStats();
   const plan = getTodayPlan();
   saveDayRecord(plan);
+  if (!localStorage.getItem('sca3_setup_done')) {
+    showSetupModal();
+  }
 }
 
 init();
